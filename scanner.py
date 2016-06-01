@@ -12,7 +12,7 @@ WS      = r'(?P<WS>\s+)'
 master_pattern = re.compile('|'.join((ID, NUM, OP, LPAREN, RPAREN, WS)))
 Token = collections.namedtuple('Token', ['type', 'value'])
 
-def generate_tokens(pattern, text):
+def generate_tokens(text, pattern=master_pattern):
     scanner = pattern.scanner(text)
     tokens = [Token(m.lastgroup, m.group()) for m in iter(scanner.match, None)]
     return tokens
@@ -36,6 +36,7 @@ def pprint_scanner_output(tokens,i,per_line=False):
 
 for i,inp in enumerate(inputs):
     print("Input:   ",inp)
-    output_tokens = generate_tokens(master_pattern, inp)
+    output_tokens = generate_tokens(inp, master_pattern)
     pprint_scanner_output(output_tokens,i)
     print()
+
