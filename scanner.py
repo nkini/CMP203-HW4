@@ -39,13 +39,17 @@ def pprint_scanner_output(tokens,per_line=False):
         print("Expected output:",outputs[i].upper())
 
 if __name__ == '__main__':
-    for i,inp in enumerate(inputs):
-        print("Input:   ",inp)
-        output_tokens = generate_tokens(inp)
-        #pprint_scanner_output(output_tokens)
-        buf = stringify_tokens(output_tokens)
-        print(outputs[i].upper())
-        print(', '.join(buf).upper())
-        assert(outputs[i].upper() == ', '.join(buf).upper())
-        print()
-
+    with open('reqdout.txt','w') as ft, open('recdout.txt','w') as fo:
+        for i,inp in enumerate(inputs):
+            print("Input:   ",inp)
+            output_tokens = generate_tokens(inp)
+            #pprint_scanner_output(output_tokens)
+            buf = stringify_tokens(output_tokens)
+            fo.write(', '.join(buf).upper()+'\n')
+            ft.write(outputs[i].upper()+'\n')
+            #print(outputs[i].upper())
+            #print(', '.join(buf).upper())
+            #print(outputs[i])
+            #print(', '.join(buf))
+            #assert(outputs[i].upper() == ', '.join(buf).upper())
+            print()
