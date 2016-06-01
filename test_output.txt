@@ -1,0 +1,232 @@
+Input string:
+  42
+Scanner tokens:
+  NUM(42)
+Parser tokens:
+  num(42)
+Syntax tree:
+  num(42)
+Sequence of rules:
+Answer:
+  42
+
+Input string:
+  (app   43 44)
+Scanner tokens:
+  Lparen, ID(app), WS, NUM(43), WS, NUM(44), Rparen
+Parser tokens:
+  Lparen, app, num(43), num(44), Rparen
+Syntax tree:
+  app(num(43), num(44))
+Sequence of rules:
+  [cek1]
+  [cek4]
+Answer:
+  Stuck
+
+Input string:
+  (lam hello (app hello hello))
+Scanner tokens:
+  Lparen, ID(lam), WS, ID(hello), WS, Lparen, ID(app), WS, ID(hello), WS, ID(hello), Rparen, Rparen
+Parser tokens:
+  Lparen, lam, var(hello), Lparen, app, var(hello), var(hello), Rparen, Rparen
+Syntax tree:
+  lam(hello, app(var(hello), var(hello)))
+Sequence of rules:
+Answer:
+  function
+
+Input string:
+  (lam x (app y (add1 (sub1 (iszero (+ 2 (- 3 (* hello (^ 33 44)))))))))
+Scanner tokens:
+  Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(y), WS, Lparen, ID(add1), WS, Lparen, ID(sub1), WS, Lparen, ID(iszero), WS, Lparen, OP(+), WS, NUM(2), WS, Lparen, OP(-), WS, NUM(3), WS, Lparen, OP(*), WS, ID(hello), WS, Lparen, OP(^), WS, NUM(33), WS, NUM(44), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen
+Parser tokens:
+  Lparen, lam, var(x), Lparen, app, var(y), Lparen, op1(add1), Lparen, op1(sub1), Lparen, op1(iszero), Lparen, op2(+), num(2), Lparen, op2(-), num(3), Lparen, op2(*), var(hello), Lparen, op2(^), num(33), num(44), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen
+Syntax tree:
+  lam(x, app(var(y), op1(add1, op1(sub1, op1(iszero, op2(+, num(2), op2(-, num(3), op2(*, var(hello), op2(^, num(33), num(44))))))))))
+Sequence of rules:
+Answer:
+  function
+
+Input string:
+  (^ (-0 2) (-0 5))
+Scanner tokens:
+  Lparen, OP(^), WS, Lparen, OP(-), NUM(0), WS, NUM(2), Rparen, WS, Lparen, OP(-), NUM(0), WS, NUM(5), Rparen, Rparen
+Parser tokens:
+  Lparen, op2(^), Lparen, op2(-), num(0), num(2), Rparen, Lparen, op2(-), num(0), num(5), Rparen, Rparen
+Syntax tree:
+  op2(^, op2(-, num(0), num(2)), op2(-, num(0), num(5)))
+Sequence of rules:
+  [cek2b]
+  [cek2b]
+  [cek6b]
+  [cek5b]
+  [cek6b]
+  [cek2b]
+  [cek6b]
+  [cek5b]
+  [cek5b]
+Answer:
+  -1
+
+Input string:
+  blah
+Scanner tokens:
+  ID(blah)
+Parser tokens:
+  var(blah)
+Syntax tree:
+  var(blah)
+Sequence of rules:
+Answer:
+  Stuck
+
+Input string:
+  (app (+ 2 3) 4)
+Scanner tokens:
+  Lparen, ID(app), WS, Lparen, OP(+), WS, NUM(2), WS, NUM(3), Rparen, WS, NUM(4), Rparen
+Parser tokens:
+  Lparen, app, Lparen, op2(+), num(2), num(3), Rparen, num(4), Rparen
+Syntax tree:
+  app(op2(+, num(2), num(3)), num(4))
+Sequence of rules:
+  [cek1]
+  [cek2b]
+  [cek6b]
+  [cek5b]
+  [cek4]
+Answer:
+  Stuck
+
+Input string:
+  (iszero 2)
+Scanner tokens:
+  Lparen, ID(iszero), WS, NUM(2), Rparen
+Parser tokens:
+  Lparen, op1(iszero), num(2), Rparen
+Syntax tree:
+  op1(iszero, num(2))
+Sequence of rules:
+  [cek2a]
+  [cek5a]
+Answer:
+  0
+
+Input string:
+  (iszero 0)
+Scanner tokens:
+  Lparen, ID(iszero), WS, NUM(0), Rparen
+Parser tokens:
+  Lparen, op1(iszero), num(0), Rparen
+Syntax tree:
+  op1(iszero, num(0))
+Sequence of rules:
+  [cek2a]
+  [cek5a]
+Answer:
+  1
+
+Input string:
+  (app (lam x x) 3)
+Scanner tokens:
+  Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, ID(x), Rparen, WS, NUM(3), Rparen
+Parser tokens:
+  Lparen, app, Lparen, lam, var(x), var(x), Rparen, num(3), Rparen
+Syntax tree:
+  app(lam(x, var(x)), num(3))
+Sequence of rules:
+  [cek1]
+  [cek4]
+  [cek3]
+  [cek7]
+Answer:
+  3
+
+Input string:
+  (app (app (app (app (lam x (app x x)) (lam f (lam n (lam a (lam b (app (app n (lam m (app (app (app (app f f) m) a) (app a b)))) b)))))) (lam s (lam z (app s (lam s (lam z z)))))) (lam x (+ x 1))) 5)
+Scanner tokens:
+  Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(f), WS, Lparen, ID(lam), WS, ID(n), WS, Lparen, ID(lam), WS, ID(a), WS, Lparen, ID(lam), WS, ID(b), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, ID(n), WS, Lparen, ID(lam), WS, ID(m), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, ID(f), WS, ID(f), Rparen, WS, ID(m), Rparen, WS, ID(a), Rparen, WS, Lparen, ID(app), WS, ID(a), WS, ID(b), Rparen, Rparen, Rparen, Rparen, WS, ID(b), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(s), WS, Lparen, ID(lam), WS, ID(z), WS, Lparen, ID(app), WS, ID(s), WS, Lparen, ID(lam), WS, ID(s), WS, Lparen, ID(lam), WS, ID(z), WS, ID(z), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, OP(+), WS, ID(x), WS, NUM(1), Rparen, Rparen, Rparen, WS, NUM(5), Rparen
+Parser tokens:
+  Lparen, app, Lparen, app, Lparen, app, Lparen, app, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Lparen, lam, var(f), Lparen, lam, var(n), Lparen, lam, var(a), Lparen, lam, var(b), Lparen, app, Lparen, app, var(n), Lparen, lam, var(m), Lparen, app, Lparen, app, Lparen, app, Lparen, app, var(f), var(f), Rparen, var(m), Rparen, var(a), Rparen, Lparen, app, var(a), var(b), Rparen, Rparen, Rparen, Rparen, var(b), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Lparen, lam, var(s), Lparen, lam, var(z), Lparen, app, var(s), Lparen, lam, var(s), Lparen, lam, var(z), var(z), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Lparen, lam, var(x), Lparen, op2(+), var(x), num(1), Rparen, Rparen, Rparen, num(5), Rparen
+Syntax tree:
+  app(app(app(app(lam(x, app(var(x), var(x))), lam(f, lam(n, lam(a, lam(b, app(app(var(n), lam(m, app(app(app(app(var(f), var(f)), var(m)), var(a)), app(var(a), var(b))))), var(b))))))), lam(s, lam(z, app(var(s), lam(s, lam(z, var(z))))))), lam(x, op2(+, var(x), num(1)))), num(5))
+Sequence of rules:
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek2b]
+  [cek7]
+  [cek6b]
+  [cek5b]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek7]
+Answer:
+  6
+
+Input string:
+  (lam z (app (lam x (app x x)) (lam x (app x x))))
+Scanner tokens:
+  Lparen, ID(lam), WS, ID(z), WS, Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, Rparen, Rparen
+Parser tokens:
+  Lparen, lam, var(z), Lparen, app, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Rparen, Rparen
+Syntax tree:
+  lam(z, app(lam(x, app(var(x), var(x))), lam(x, app(var(x), var(x)))))
+Sequence of rules:
+Answer:
+  function
+
+done
