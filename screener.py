@@ -2,11 +2,9 @@ from pprint import pprint
 import scanner
 import re
 import collections
+from scanner import Token
 
-Token = collections.namedtuple('Token',['type','value'])
-
-class PrettyTuple:
-    def 
+#Token = collections.namedtuple('Token',['type','value'])
 
 token_map = {
 

@@ -1,4 +1,3 @@
-
 import re
 import collections
 from pprint import pprint
@@ -11,7 +10,13 @@ RPAREN  = r'(?P<RPAREN>\))'
 WS      = r'(?P<WS>\s+)'
 
 master_pattern = re.compile('|'.join((ID, NUM, OP, LPAREN, RPAREN, WS)))
-Token = collections.namedtuple('Token', ['type', 'value'])
+
+class Token(collections.namedtuple('Token',['type','value'])):
+    __slots__ = ()
+    def __repr__(self):
+        if self.type in ['LPAREN','RPAREN','WS']: return self.type
+        elif self.type in ['LAM','APP','OP1']: return (self.value).lower()
+        else: return (self.type+'('+self.value+')').lower()
 
 def generate_tokens(text, pattern=master_pattern):
     scanner = pattern.scanner(text)
@@ -44,13 +49,14 @@ if __name__ == '__main__':
     for i,inp in enumerate(inputs):
         print("Input:   ",inp)
         output_tokens = generate_tokens(inp)
-        pprint_scanner_output(output_tokens)
-        buf = stringify_tokens(output_tokens)
+        print(output_tokens)
+        #pprint_scanner_output(output_tokens)
+        #buf = stringify_tokens(output_tokens)
         #fo.write(', '.join(buf).upper()+'\n')
         #ft.write(outputs[i].upper()+'\n')
         #print(outputs[i].upper())
         #print(', '.join(buf).upper())
         #print(outputs[i])
         #print(', '.join(buf))
-        assert(outputs[i].upper() == ', '.join(buf).upper())
+        #assert(outputs[i].upper() == ', '.join(buf).upper())
         print()
