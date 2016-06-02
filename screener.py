@@ -5,6 +5,9 @@ import collections
 
 Token = collections.namedtuple('Token',['type','value'])
 
+class PrettyTuple:
+    def 
+
 token_map = {
 
     'ID' : { 
@@ -57,7 +60,7 @@ def pprint_screener_output(tokens,per_line=False):
         print(',\n'.join(buf))
     else:
         print("Our output:     ",', '.join(buf))
-        print("Expected output:",outputs[i].upper())
+        print("Expected output:",outputs[i])
 
 if __name__ == '__main__':
     inputs = ["42", "(app   43 44)", "(lam hello (app hello hello))", "(lam x (app y (add1 (sub1 (iszero (+ 2 (- 3 (* hello (^ 33 44)))))))))", "(^ (-0 2) (-0 5))", "blah", "(app (+ 2 3) 4)", "(iszero 2)", "(iszero 0)", "(app (lam x x) 3)", "(app (app (app (app (lam x (app x x)) (lam f (lam n (lam a (lam b (app (app n (lam m (app (app (app (app f f) m) a) (app a b)))) b)))))) (lam s (lam z (app s (lam s (lam z z)))))) (lam x (+ x 1))) 5)", "(lam z (app (lam x (app x x)) (lam x (app x x))))"]
@@ -71,4 +74,4 @@ if __name__ == '__main__':
         buf = stringify_tokens(screenout)
         pprint_screener_output(screenout)
         assert(', '.join(buf).upper() == outputs[i].upper())
-        print()
+        print('\n')

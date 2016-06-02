@@ -1,13 +1,52 @@
 import scanner
 import screener
+from pprint import pprint
 
-def stringify_tokens(ast):
-    return []
+ast = []
+
+def stringify_tokens(tokens):
+    buf = []
+    for token in tokens:
+        if token.type in ['LPAREN','RPAREN','APP','LAM'] : 
+            buf.append(token.type)
+        else: 
+            buf.append(token.type+'('+token.value+')')
+    return buf
 
 
 def E(tokens):
-
-    return tokens
+    if tokens[0].type == 'VAR':
+        return (tokens[0], tokens[1:])
+    elif tokens[0].type == 'NUM':
+        return (tokens[0], tokens[1:])
+    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'LAM' and tokens[2].type == 'VAR':
+        body,rem1=E(tokens[3:])
+        if rem1[0].type == 'RPAREN':
+            return ((tokens[1], (tokens[2], body)), rem1[1:])
+        else:
+            return (None,'error')
+    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'APP':
+        fun, rem1 = E(tokens[2:])
+        arg, rem2 = E(rem1)
+        if rem2[0].type == 'RPAREN':
+            return ((tokens[1], (fun, arg)), rem2[1:])
+        else:
+            return (None,'error')
+    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP1':
+        body, rem = E(tokens[2:])
+        if rem[0].type == 'RPAREN':
+            return ((tokens[1], body), rem[1:])
+        else:
+            return (None, 'error')
+    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP2':
+        body1, rem1 = E(tokens[2:])
+        body2, rem2 = E(rem1)
+        if rem2[0].type == 'RPAREN':
+            return ((tokens[1], body1, body2), rem2[1:])
+        else:
+            return (None,'error')
+    else:
+        return (None, 'error')
 
 
 def parse(tokens):
@@ -15,47 +54,9 @@ def parse(tokens):
     if rem == []:
         return ast
     else:
-        print "Error"    
-        return
+        print "Error"
 
 
-'''    
-    i = 0
-
-def term(token):
-    global i
-    i += 1
-    return inp[i-1] == token.val
-
-    # per non terminal, per production
-    # E -> var
-    def E_1():
-        return
-
-    # E -> ( lambda var E )
-    def E_2():
-
-
-    # E -> ( app E E )
-    def E_3():
-        
-
-    # E -> ( op1 E )
-    def E_4():
-        
-
-    # E -> ( op2 E E )
-    def E_5():
-        
-
-    # E -> num
-    def E_6():
-        
-
-    # for the entire non terminal E
-    def E():
-'''   
-     
 
 def pprint_ast_output(ast):
     print("Implement this function")
@@ -70,9 +71,10 @@ if __name__ == '__main__':
     for i,inp in enumerate(inputs):
         print("Input:   ",inp)
         scanout = scanner.generate_tokens(inp)
-        screenout = screen(scanout)
+        screenout = screener.screen(scanout)
         ast = parse(screenout)
-        buf = stringify_tokens(ast)
-        pprint_ast_output(ast)
-        assert(', '.join(buf).upper() == outputs[i].upper())
-        print()
+        pprint(ast)
+        #buf = stringify_tokens(ast)
+        #pprint_ast_output(ast)
+        #assert(', '.join(buf).upper() == outputs[i].upper())
+        print('\n')
