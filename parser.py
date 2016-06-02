@@ -2,51 +2,57 @@ import scanner
 import screener
 from pprint import pprint
 
-ast = []
-
-def stringify_tokens(tokens):
-    buf = []
-    for token in tokens:
-        if token.type in ['LPAREN','RPAREN','APP','LAM'] : 
-            buf.append(token.type)
-        else: 
-            buf.append(token.type+'('+token.value+')')
-    return buf
-
-
 def E(tokens):
+
+    global outstring
     if tokens[0].type == 'VAR':
-        return (tokens[0], tokens[1:])
+        outstring += 'var('+tokens[0].value+')'
+        return tokens[0], tokens[1:]
+
     elif tokens[0].type == 'NUM':
-        return (tokens[0], tokens[1:])
+        outstring += 'num('+tokens[0].value+')'
+        return tokens[0], tokens[1:]
+
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'LAM' and tokens[2].type == 'VAR':
-        body,rem1=E(tokens[3:])
+        outstring += 'lam('+tokens[2].value+', '
+        body,rem1 = E(tokens[3:])
         if rem1[0].type == 'RPAREN':
-            return ((tokens[1], (tokens[2], body)), rem1[1:])
+            outstring += ')'
+            return (tokens[1], (tokens[2], body)), rem1[1:]
         else:
-            return (None,'error')
+            return None,'error'
+
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'APP':
+        outstring += 'app('
         fun, rem1 = E(tokens[2:])
+        outstring += ', '
         arg, rem2 = E(rem1)
         if rem2[0].type == 'RPAREN':
-            return ((tokens[1], (fun, arg)), rem2[1:])
+            outstring += ')'
+            return (tokens[1], (fun, arg)), rem2[1:]
         else:
-            return (None,'error')
+            return None,'error'
+
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP1':
+        outstring += 'op1('+tokens[1].value+', '
         body, rem = E(tokens[2:])
         if rem[0].type == 'RPAREN':
-            return ((tokens[1], body), rem[1:])
+            outstring += ')'
+            return (tokens[1], body), rem[1:]
         else:
-            return (None, 'error')
+            return None, 'error'
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP2':
+        outstring += 'op2('+tokens[1].value+', '
         body1, rem1 = E(tokens[2:])
+        outstring += ', '
         body2, rem2 = E(rem1)
         if rem2[0].type == 'RPAREN':
-            return ((tokens[1], body1, body2), rem2[1:])
+            outstring += ')'
+            return (tokens[1], body1, body2), rem2[1:]
         else:
-            return (None,'error')
+            return None,'error'
     else:
-        return (None, 'error')
+        return None, 'error'
 
 
 def parse(tokens):
@@ -55,7 +61,6 @@ def parse(tokens):
         return ast
     else:
         print "Error"
-
 
 
 def pprint_ast_output(ast):
@@ -69,12 +74,13 @@ if __name__ == '__main__':
 
     
     for i,inp in enumerate(inputs):
-        print("Input:   ",inp)
+        #print("Input:   ",inp)
+        outstring = ''
+        print(i)
         scanout = scanner.generate_tokens(inp)
         screenout = screener.screen(scanout)
         ast = parse(screenout)
-        pprint(ast)
-        #buf = stringify_tokens(ast)
-        #pprint_ast_output(ast)
-        #assert(', '.join(buf).upper() == outputs[i].upper())
+        #pprint(ast)
+        print(outstring)
+        assert(outstring == outputs[i])
         print('\n')
