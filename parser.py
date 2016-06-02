@@ -5,6 +5,7 @@ from pprint import pprint
 def E(tokens):
 
     global outstring
+
     if tokens[0].type == 'VAR':
         outstring += 'var('+tokens[0].value+')'
         return tokens[0], tokens[1:]
@@ -20,7 +21,7 @@ def E(tokens):
             outstring += ')'
             return (tokens[1], (tokens[2], body)), rem1[1:]
         else:
-            return None,'error'
+            return None,'Error'
 
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'APP':
         outstring += 'app('
@@ -31,7 +32,7 @@ def E(tokens):
             outstring += ')'
             return (tokens[1], (fun, arg)), rem2[1:]
         else:
-            return None,'error'
+            return None,'Error'
 
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP1':
         outstring += 'op1('+tokens[1].value+', '
@@ -40,7 +41,8 @@ def E(tokens):
             outstring += ')'
             return (tokens[1], body), rem[1:]
         else:
-            return None, 'error'
+            return None, 'Error'
+
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP2':
         outstring += 'op2('+tokens[1].value+', '
         body1, rem1 = E(tokens[2:])
@@ -50,9 +52,10 @@ def E(tokens):
             outstring += ')'
             return (tokens[1], body1, body2), rem2[1:]
         else:
-            return None,'error'
+            return None,'Error'
+
     else:
-        return None, 'error'
+        return None, 'Error'
 
 
 def parse(tokens):
@@ -60,7 +63,7 @@ def parse(tokens):
     if rem == []:
         return ast
     else:
-        print "Error"
+        print("Error")
 
 
 def pprint_ast_output(ast):
@@ -74,13 +77,12 @@ if __name__ == '__main__':
 
     
     for i,inp in enumerate(inputs):
-        #print("Input:   ",inp)
+        print("Input:   ",inp)
         outstring = ''
-        print(i)
         scanout = scanner.generate_tokens(inp)
         screenout = screener.screen(scanout)
         ast = parse(screenout)
         #pprint(ast)
-        print(outstring)
+        print("Our output:\n"+outstring)
         assert(outstring == outputs[i])
         print('\n')
