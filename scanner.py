@@ -13,10 +13,12 @@ master_pattern = re.compile('|'.join((ID, NUM, OP, LPAREN, RPAREN, WS)))
 
 class Token(collections.namedtuple('Token',['type','value'])):
     __slots__ = ()
+    '''
     def __repr__(self):
         if self.type in ['LPAREN','RPAREN','WS']: return self.type
         elif self.type in ['LAM','APP','OP1']: return (self.value).lower()
         else: return (self.type+'('+self.value+')').lower()
+    '''
 
 def generate_tokens(text, pattern=master_pattern):
     scanner = pattern.scanner(text)
