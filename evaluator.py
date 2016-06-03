@@ -14,8 +14,8 @@ def step(C, E, K):
     global outstring
 
     #print("\n")
-    #print("type(C)",type(C))
-    #print("C is ",C)
+    print("type(C)",type(C))
+    print("C is ",C)
     #print("C,E,K:")
     #print('\t'.join(map(str,[C,E,K])))
     #if K: print(K[-1])
@@ -108,17 +108,23 @@ def step(C, E, K):
 
         #CEK 6b
         if C.type == 'NUM' and K[-1].type == 'ARG12':
-            #print('[cek6b]')
-            outstring += '  [cek6b]\n'
-            k = K.pop()
-            o = k.value[0]
-            N = k.value[1][0]
-            e_prime = k.value[1][1]
-            K.append(Token('ARG22', (o,(C.value,E))))
-            return (N),e_prime
+            retval = cek6b(C,E,K)
+            #if retval : return retval
+            return retval
 
     return None, None
 
+
+def cek6b(C,E,K):
+    #print('[cek6b]')
+    global outstring
+    outstring += '  [cek6b]\n'
+    k = K.pop()
+    o = k.value[0]
+    N = k.value[1][0]
+    e_prime = k.value[1][1]
+    K.append(Token('ARG22', (o,(C.value,E))))
+    return (N),e_prime
 
 def cek4(C,E,K):
 

@@ -48,7 +48,7 @@ def stringify_tokens(tokens):
         if token.type in ['LPAREN','RPAREN','APP','LAM'] : 
             buf.append(token.type)
         else: 
-            buf.append(token.type+'('+token.value+')')
+            buf.append(token.type+'('+str(token.value)+')')
     return buf
 
 

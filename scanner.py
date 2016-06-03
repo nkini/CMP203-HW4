@@ -35,7 +35,7 @@ def stringify_tokens(tokens):
         if token.type in ['LPAREN','RPAREN','WS'] : 
             buf.append(token.type)
         else: 
-            buf.append(token.type+'('+token.value+')')
+            buf.append(token.type+'('+str(token.value)+')')
     return buf
 
 def pprint_scanner_output(tokens,per_line=False):
@@ -57,12 +57,12 @@ if __name__ == '__main__':
         output_tokens = generate_tokens(inp)
         print(output_tokens)
         #pprint_scanner_output(output_tokens)
-        #buf = stringify_tokens(output_tokens)
+        buf = stringify_tokens(output_tokens)
         #fo.write(', '.join(buf).upper()+'\n')
         #ft.write(outputs[i].upper()+'\n')
         #print(outputs[i].upper())
         #print(', '.join(buf).upper())
         #print(outputs[i])
         #print(', '.join(buf))
-        #assert(outputs[i].upper() == ', '.join(buf).upper())
+        assert(outputs[i].upper() == ', '.join(buf).upper())
         print()
