@@ -14,11 +14,11 @@ def step(C, E, K):
     global outstring
 
     #print("\n")
-    print("type(C)",type(C))
-    print("C is ",C)
+    #print("type(C)",type(C))
+    #print("C is ",C)
     #print("C,E,K:")
     #print('\t'.join(map(str,[C,E,K])))
-    #if K: print(K[-1])
+    #if K: print("K top is ",K[-1])
 
     #CEK 1
     #if isinstance(C[0], Token) and C[0].type == 'APP'
@@ -62,6 +62,12 @@ def step(C, E, K):
         retval = cek3(C,E,K)
         if retval: return retval
 
+    #CEK 6b
+    if K and K[-1].type == 'ARG12':
+        retval = cek6b(C,E,K)
+        #if retval : return retval
+        return retval
+
     if type(C) == tuple:
         
         #CEK 2a
@@ -86,7 +92,7 @@ def step(C, E, K):
 
         #CEK 5a
         if C.type == 'NUM' and K[-1].type == 'ARG11':
-            #print('[cek5a]')
+            print('[cek5a]')
             outstring += '  [cek5a]\n'
             b = C.value
             k = K.pop()
@@ -96,21 +102,17 @@ def step(C, E, K):
 
         #CEK 5b
         if C.type == 'NUM' and K[-1].type == 'ARG22':
-            #print('[cek5b]')
+            print('[cek5b]')
             outstring += '  [cek5b]\n'
             b = C.value
             k = K.pop()
             o = k.value[0]
             b1 = k.value[1][0]
             e_prime = k.value[1][1]
+            print(o, b1, b)
             V = compute(o, b1, b)
             return Token('NUM',V),[]
 
-        #CEK 6b
-        if C.type == 'NUM' and K[-1].type == 'ARG12':
-            retval = cek6b(C,E,K)
-            #if retval : return retval
-            return retval
 
     return None, None
 
@@ -118,6 +120,10 @@ def step(C, E, K):
 def cek6b(C,E,K):
     #print('[cek6b]')
     global outstring
+
+    if type(C) == tuple:
+        C = C[0]
+
     outstring += '  [cek6b]\n'
     k = K.pop()
     o = k.value[0]
