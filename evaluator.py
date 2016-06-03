@@ -34,7 +34,7 @@ def step(C, E, K):
             outstring += '  [cek2b]\n'
             M = C[1]
             N = C[2]
-            K.append(Token('ARG12', (C[0].value,N,E)))
+            K.append(Token('ARG12', (C[0].value,(N,E))))
             return (M),E
 
         #CEK 2a
@@ -91,23 +91,25 @@ def step(C, E, K):
 
 
         #print(K[-1])
-        #if C.type == 'NUM' and K[-1].type == 'FUN' and K[-1].value[0][0].type == 'LAM':
         #CEK 3
-        if C.type == 'NUM' and K[-1].type == 'FUN' and K[-1].value[0].type == 'LAM':
-            print(['cek3'])
-            outstring += '  [cek3]\n'
-            k = K.pop()
-            X = k.value[0][1][0]
-            M = k.value[0][1][1]
-            e_prime = k.value[1]
-            V = C#C.value
-            print("e_prime:",e_prime)
-            print("X:",X)
-            print("V:",V)
-            print("E:",E)
-            #exit()
-            e_prime.append((X,(V,E)))
-            return (M),e_prime
+        if C.type == 'NUM' and K[-1].type == 'FUN':
+            if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'LAM') or \
+               (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'LAM'):
+
+                print(['cek3'])
+                outstring += '  [cek3]\n'
+                k = K.pop()
+                X = k.value[0][1][0]
+                M = k.value[0][1][1]
+                e_prime = k.value[1]
+                V = C#C.value
+                print("e_prime:",e_prime)
+                print("X:",X)
+                print("V:",V)
+                print("E:",E)
+                #exit()
+                e_prime.append((X,(V,E)))
+                return (M),e_prime
 
         #CEK 4
         #if isinstance(C[0], Token) and C[0].type == 'NUM' and K[-1].type == 'ARG':
@@ -140,8 +142,8 @@ def step(C, E, K):
             b = C.value
             k = K.pop()
             o = k.value[0]
-            b1 = k.value[1]
-            e_prime = k.value[2]
+            b1 = k.value[1][0]
+            e_prime = k.value[1][1]
             V = compute(o, b1, b)
             return Token('NUM',V),[]
 
@@ -151,9 +153,9 @@ def step(C, E, K):
             outstring += '  [cek6b]\n'
             k = K.pop()
             o = k.value[0]
-            N = k.value[1]
-            e_prime = k.value[2]
-            K.append(Token('ARG22', (o,C.value,E)))
+            N = k.value[1][0]
+            e_prime = k.value[1][1]
+            K.append(Token('ARG22', (o,(C.value,E))))
             return (N),e_prime
 
     return None, None
@@ -242,9 +244,79 @@ if __name__ == '__main__':
 ''',0),
 ('''  [cek2a]
   [cek5a]
-''',1)]
+''',1),
+('''  [cek1]
+  [cek4]
+  [cek3]
+  [cek7]
+''',3),
+('''  [cek1]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek4]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek2b]
+  [cek7]
+  [cek6b]
+  [cek5b]
+  [cek3]
+  [cek1]
+  [cek1]
+  [cek7]
+  [cek4]
+  [cek3]
+  [cek4]
+  [cek7]
+  [cek3]
+  [cek7]
+''',6),
+('','function')]
 
-    for i,inp in enumerate(inputs[:9]):
+    for i,inp in enumerate(inputs):
         print("Input:   ",inp)
         outstring = ''
         scanout = scanner.generate_tokens(inp)
