@@ -92,7 +92,7 @@ def step(C, E, K):
 
         #CEK 5a
         if C.type == 'NUM' and K[-1].type == 'ARG11':
-            print('[cek5a]')
+            #print('[cek5a]')
             outstring += '  [cek5a]\n'
             b = C.value
             k = K.pop()
@@ -102,14 +102,14 @@ def step(C, E, K):
 
         #CEK 5b
         if C.type == 'NUM' and K[-1].type == 'ARG22':
-            print('[cek5b]')
+            #print('[cek5b]')
             outstring += '  [cek5b]\n'
             b = C.value
             k = K.pop()
             o = k.value[0]
             b1 = k.value[1][0]
             e_prime = k.value[1][1]
-            print(o, b1, b)
+            #print(o, b1, b)
             V = compute(o, b1, b)
             return Token('NUM',V),[]
 
@@ -193,7 +193,7 @@ def cek3(C,E,K):
 
 
 def lookup(E, X):
-    for e in E:
+    for e in E[-1::-1]:
         if X == e[0]:
             return e[1]
 
