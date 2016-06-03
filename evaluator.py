@@ -13,12 +13,12 @@ def step(C, E, K):
 
     global outstring
 
-    print("\n")
-    print("type(C)",type(C))
-    print("C is ",C)
+    #print("\n")
+    #print("type(C)",type(C))
+    #print("C is ",C)
     #print("C,E,K:")
     #print('\t'.join(map(str,[C,E,K])))
-    if K: print(K[-1])
+    #if K: print(K[-1])
 
     #CEK 2b
     if type(C) == tuple and C[0].type == 'OP2':
@@ -131,7 +131,7 @@ def step(C, E, K):
                 #print('[cek7]')
                 outstring += '  [cek7]\n'
                 c = lookup(E,C)
-                print("This is the c in cek7:",c)
+                #print("This is the c in cek7:",c)
                 return c
 
             #if environment is empty, return an error
@@ -196,9 +196,9 @@ def cek4(C,E,K):
 
     global outstring
 
-    print("This is K[-1]",K[-1])
+    #print("This is K[-1]",K[-1])
     if K[-1].type == 'ARG':
-        print('[cek4]')
+        #print('[cek4]')
         outstring += '  [cek4]\n'
         V = C
         e = E
@@ -211,12 +211,12 @@ def cek4(C,E,K):
 def cek3(C,E,K):
     global outstring
     if K and K[-1].type == 'FUN':#C.type == 'NUM' 
-        print("got here")
+        #print("got here")
         if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'LAM') or \
            (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'LAM'):
             
-            print(['cek3'])
-            print("K[-1].value[0] is:",K[-1].value[0])
+            #print(['cek3'])
+            #print("K[-1].value[0] is:",K[-1].value[0])
             outstring += '  [cek3]\n'
             k = K.pop()
             if type(k.value[0]) == tuple:
@@ -224,15 +224,15 @@ def cek3(C,E,K):
                 M = k.value[0][1][1]
                 e_prime = k.value[1]
             else:
-                print("k is: ",k)
+                #print("k is: ",k)
                 X = k.value[1]
                 M = k.value[1]
                 e_prime = k.value[1]
             V = C#C.value
-            print("e_prime:",e_prime)
-            print("X:",X)
-            print("V:",V)
-            print("E:",E)
+            #print("e_prime:",e_prime)
+            #print("X:",X)
+            #print("V:",V)
+            #print("E:",E)
             #exit()
             e_prime.append((X,(V,E)))
             return (M),e_prime
@@ -274,7 +274,7 @@ def evaluate(ast):
     while True:
         control, environment = step(control, environment, stack)
 
-        print("control, environment:",control, environment)
+        #print("control, environment:",control, environment)
         if control is None and environment is None:
             return "Stuck"
 
@@ -402,7 +402,6 @@ if __name__ == '__main__':
         ast = parser.parse(screenout)
         #pprint(ast)
         retval = evaluate(ast)
-        print('\n')
         print("Evaluator returned:",retval)
         print(outstring)
         assert(outputs[i] == (outstring,retval))
