@@ -70,6 +70,7 @@ if __name__ == '__main__':
         scanout = scanner.generate_tokens(inp)
         screenout = screen(scanout)
         buf = stringify_tokens(screenout)
-        pprint_screener_output(screenout)
+        #pprint_screener_output(screenout)
+        print(', '.join(buf))
         assert(', '.join(buf).upper() == outputs[i].upper())
         print('\n')

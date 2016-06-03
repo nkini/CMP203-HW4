@@ -81,6 +81,7 @@ if __name__ == '__main__':
         screenout = screener.screen(scanout)
         ast = parse(screenout)
         #pprint(ast)
-        print("Our output:\n"+outstring)
+        #print("Our output:\n"+outstring)
+        print(outstring)
         assert(outstring == outputs[i])
         print('\n')

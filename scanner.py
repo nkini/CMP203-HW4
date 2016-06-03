@@ -55,7 +55,7 @@ if __name__ == '__main__':
     for i,inp in enumerate(inputs):
         print("Input:   ",inp)
         output_tokens = generate_tokens(inp)
-        print(output_tokens)
+        #print(output_tokens)
         #pprint_scanner_output(output_tokens)
         buf = stringify_tokens(output_tokens)
         #fo.write(', '.join(buf).upper()+'\n')
@@ -63,6 +63,6 @@ if __name__ == '__main__':
         #print(outputs[i].upper())
         #print(', '.join(buf).upper())
         #print(outputs[i])
-        #print(', '.join(buf))
+        print(', '.join(buf))
         assert(outputs[i].upper() == ', '.join(buf).upper())
         print()
