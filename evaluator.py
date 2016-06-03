@@ -51,10 +51,23 @@ def step(C, E, K):
             M = C[1].value
             o = C[0].value
             K.append(Token('ARG11', o))
-            return (M),e
+            if type(M) == int:
+                return Token('NUM',M),E
+            else:
+                return (M),E
 
  
     if isinstance(C, Token):
+
+        #CEK 5a
+        if C.type == 'NUM' and K[-1].type == 'ARG11':
+            print('[cek5a]')
+            b = C.value
+            k = K.pop()
+            o = k.value
+            V = compute(o, b, None)
+            return Token('NUM',V),[]
+
         #CEK 5b
         if C.type == 'NUM' and K[-1].type == 'ARG22':
             print('[cek5b]')
@@ -80,11 +93,17 @@ def step(C, E, K):
 
 
 def compute(o,x,y):
-    x,y = int(x),int(y)
-    if o == '^' : return x**y
-    if o == '+' : return x+y
-    if o == '-' : return x-y
-    if o == '*' : return x*y
+    if y:
+        x,y = int(x),int(y)
+        if o == '^' : return x**y
+        if o == '+' : return x+y
+        if o == '-' : return x-y
+        if o == '*' : return x*y
+    else:
+        x = int(x)
+        if o == 'add1': return x+1
+        if o == 'sub1': return x-1
+        if o == 'iszero': return int(x == 0)
 
 import math
 def evaluate(ast):
@@ -105,12 +124,12 @@ if __name__ == '__main__':
 
     inputs = ["42", "(app   43 44)", "(lam hello (app hello hello))", "(lam x (app y (add1 (sub1 (iszero (+ 2 (- 3 (* hello (^ 33 44)))))))))", "(^ (-0 2) (-0 5))", "blah", "(app (+ 2 3) 4)", "(iszero 2)", "(iszero 0)", "(app (lam x x) 3)", "(app (app (app (app (lam x (app x x)) (lam f (lam n (lam a (lam b (app (app n (lam m (app (app (app (app f f) m) a) (app a b)))) b)))))) (lam s (lam z (app s (lam s (lam z z)))))) (lam x (+ x 1))) 5)", "(lam z (app (lam x (app x x)) (lam x (app x x))))"]
     
-    for i,inp in enumerate([inputs[7]]):
+    for i,inp in enumerate(['(iszero 0)']):
         print("Input:   ",inp)
         outstring = ''
         scanout = scanner.generate_tokens(inp)
         screenout = screener.screen(scanout)
         ast = parser.parse(screenout)
         pprint(ast)
-        #print("\nEvaluator returned:",evaluate(ast))
+        print("\nEvaluator returned:",evaluate(ast))
         #print('\n')

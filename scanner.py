@@ -23,6 +23,10 @@ class Token(collections.namedtuple('Token',['type','value'])):
 def generate_tokens(text, pattern=master_pattern):
     scanner = pattern.scanner(text)
     tokens = [Token(m.lastgroup, m.group()) for m in iter(scanner.match, None)]
+    for i,tok in enumerate(tokens):
+        if tok.type == 'NUM':
+            tok = Token('NUM',int(tok.value))
+            tokens[i] = tok
     return tokens
 
 def stringify_tokens(tokens):

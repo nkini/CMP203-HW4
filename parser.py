@@ -13,7 +13,7 @@ def E(tokens):
         return tokens[0], tokens[1:]
 
     elif tokens[0].type == 'NUM':
-        outstring += 'num('+tokens[0].value+')'
+        outstring += 'num('+str(tokens[0].value)+')'
         return tokens[0], tokens[1:]
 
     elif tokens[0].type == 'LPAREN' and tokens[1].type == 'LAM' and tokens[2].type == 'VAR':
