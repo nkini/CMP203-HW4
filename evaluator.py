@@ -25,8 +25,7 @@ def step(C, E, K):
     if type(C) == tuple and C[0].type == 'APP':
         #print('[cek1]')
         outstring += '  [cek1]\n'
-        M = C[1][0]
-        N = C[1][1]
+        M,N = C[1]
         K.append(Token('ARG',(N,E)))
         return (M), E
 
@@ -34,8 +33,7 @@ def step(C, E, K):
     if type(C) == tuple and C[0].type == 'OP2':
         #print('[cek2b]')
         outstring += '  [cek2b]\n'
-        M = C[1]
-        N = C[2]
+        M,N = C[1],C[2]
         K.append(Token('ARG12', (C[0].value,(N,E))))
         return (M),E
 
@@ -58,6 +56,12 @@ def step(C, E, K):
         retval = cek4(C,E,K)
         if retval: return retval
 
+    #CEK 3
+    if K and K[-1].type == 'FUN':#C.type == 'NUM' 
+        #print("got here")
+        retval = cek3(C,E,K)
+        if retval: return retval
+
     if type(C) == tuple:
         
         #CEK 2a
@@ -75,19 +79,7 @@ def step(C, E, K):
         if C[0].type == 'LAM' and not K:
             return C,E
             
-        #CEK 3
-        if K and K[-1].type == 'FUN':
-            retval = cek3(C[0],E,K)
-            if retval: return retval
- 
     if isinstance(C, Token):
-
-        #CEK 3
-        if K and K[-1].type == 'FUN':#C.type == 'NUM' 
-            #print("got here")
-            retval = cek3(C,E,K)
-            if retval: return retval
-
 
         if not K:
             return C, E
@@ -150,6 +142,10 @@ Token(type='FUN', value=([(Token(type='VAR', value='x'), (Token(type='LAM', valu
 '''
 
 def cek3(C,E,K):
+
+    if C == tuple:
+        C = C[0]
+
     global outstring
     if K and K[-1].type == 'FUN':#C.type == 'NUM' 
         #print("got here")
@@ -166,8 +162,8 @@ def cek3(C,E,K):
                 M = k.value[0][1][1]
                 e_prime = k.value[1]
             else:
-                print("in the else of cek3")
-                print("k is: ",k)
+                #print("in the else of cek3")
+                #print("k is: ",k)
                 #k is:  Token(type='FUN', value=(Token(type='LAM', value='lam'), [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...]))]))
                 X = k.value[1][0][0]
                 M = k.value[1][0][1][0]
@@ -179,6 +175,7 @@ def cek3(C,E,K):
             #print("E:",E)
             #exit()
             e_prime.append((X,(V,E)))
+            #print('\n',(M),e_prime,'\n')
             return (M),e_prime
     
 
