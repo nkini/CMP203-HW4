@@ -20,6 +20,16 @@ def step(C, E, K):
     #print('\t'.join(map(str,[C,E,K])))
     #if K: print(K[-1])
 
+    #CEK 1
+    #if isinstance(C[0], Token) and C[0].type == 'APP'
+    if type(C) == tuple and C[0].type == 'APP':
+        #print('[cek1]')
+        outstring += '  [cek1]\n'
+        M = C[1][0]
+        N = C[1][1]
+        K.append(Token('ARG',(N,E)))
+        return (M), E
+
     #CEK 2b
     if type(C) == tuple and C[0].type == 'OP2':
         #print('[cek2b]')
@@ -29,6 +39,19 @@ def step(C, E, K):
         K.append(Token('ARG12', (C[0].value,(N,E))))
         return (M),E
 
+    #CEK 7  
+    #if the control is a variable, we look it up in the environment
+    if type(C) == Token and C.type == 'VAR':
+        if E:
+            #print('[cek7]')
+            outstring += '  [cek7]\n'
+            c = lookup(E,C)
+            return c
+
+        #if environment is empty, return an error
+        # and if K is empty... not sure about this
+        if not K:
+            return None,None
 
     #CEK 4
     if K and isinstance(K[-1],Token) and K[-1].type == 'ARG':
@@ -37,18 +60,6 @@ def step(C, E, K):
 
     if type(C) == tuple:
         
-
-        #CEK 1
-        #if isinstance(C[0], Token) and C[0].type == 'APP'
-        if C[0].type == 'APP':
-            #print('[cek1]')
-            outstring += '  [cek1]\n'
-            M = C[1][0]
-            N = C[1][1]
-            K.append(Token('ARG',(N,E)))
-            return (M), E
-
-
         #CEK 2a
         if C[0].type == 'OP1':
             #print('[cek2a]')
@@ -63,98 +74,23 @@ def step(C, E, K):
 
         if C[0].type == 'LAM' and not K:
             return C,E
-
-        '''
-        if C[0].type == 'LAM':
-            print("This is K[-1]",K[-1])
-            if K[-1].type == 'ARG':
-                print('[cek4]')
-                outstring += '  [cek4]\n'
-                V = C
-                e = E
-                k = K.pop()
-                N = k.value[0]
-                e_prime = k.value[1]
-                K.append(Token('FUN',(V,e)))
-                return (N), e_prime
-            #retval = cek4(C[0],E,K)
-            #if retval: return retval
-        '''
             
         #CEK 3
         if K and K[-1].type == 'FUN':
-            return cek3(C[0],E,K)
+            retval = cek3(C[0],E,K)
+            if retval: return retval
  
     if isinstance(C, Token):
 
-
-        #print(K[-1])
         #CEK 3
         if K and K[-1].type == 'FUN':#C.type == 'NUM' 
             #print("got here")
             retval = cek3(C,E,K)
             if retval: return retval
-            '''
-            #Delete the rest of this if the function call works
-            if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'LAM') or \
-               (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'LAM'):
 
-                print(['cek3'])
-                outstring += '  [cek3]\n'
-                k = K.pop()
-                X = k.value[0][1][0]
-                M = k.value[0][1][1]
-                e_prime = k.value[1]
-                V = C#C.value
-                print("e_prime:",e_prime)
-                print("X:",X)
-                print("V:",V)
-                print("E:",E)
-                #exit()
-                e_prime.append((X,(V,E)))
-                return (M),e_prime
-            '''
-        '''
-        if C.type == 'LAM':
-            retval = cek4(C,E,K)
-            if retval: return retval
-        '''
-
-        #CEK 7  
-        #if the control is a variable, we look it up in the environment
-        if C.type == 'VAR':
-            if E:
-                '''
-                    C,E,K:
-                    Token(type='VAR', value='x')    [(Token(type='VAR', value='x'), 3, [...])]  []
-                '''
-                #print('[cek7]')
-                outstring += '  [cek7]\n'
-                c = lookup(E,C)
-                #print("This is the c in cek7:",c)
-                return c
-
-            #if environment is empty, return an error
-            else:
-                return None,None
 
         if not K:
             return C, E
-
-        #CEK 4
-        #if isinstance(C[0], Token) and C[0].type == 'NUM' and K[-1].type == 'ARG':
-        '''
-        if C.type == 'NUM' and K[-1].type == 'ARG':
-            #print('[cek4]')
-            outstring += '  [cek4]\n'
-            V = C
-            e = E
-            k = K.pop()
-            N = k.value[0]
-            e_prime = k.value[1]
-            K.append(Token('FUN',(V,e)))
-            return (N), e_prime
-        '''
 
         #CEK 5a
         if C.type == 'NUM' and K[-1].type == 'ARG11':
@@ -200,6 +136,7 @@ def cek4(C,E,K):
     if K[-1].type == 'ARG':
         #print('[cek4]')
         outstring += '  [cek4]\n'
+        #print(type(C))
         V = C
         e = E
         k = K.pop()
@@ -208,10 +145,15 @@ def cek4(C,E,K):
         K.append(Token('FUN',(V,e)))
         return (N), e_prime
 
+'''
+Token(type='FUN', value=([(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...])), ([...], (Token(type='LAM', value='lam'), [...]))], [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...])), ([...], (Token(type='LAM', value='lam'), [...]))]))
+'''
+
 def cek3(C,E,K):
     global outstring
     if K and K[-1].type == 'FUN':#C.type == 'NUM' 
         #print("got here")
+        #print(K[-1])
         if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'LAM') or \
            (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'LAM'):
             
@@ -224,10 +166,12 @@ def cek3(C,E,K):
                 M = k.value[0][1][1]
                 e_prime = k.value[1]
             else:
-                #print("k is: ",k)
-                X = k.value[1]
-                M = k.value[1]
-                e_prime = k.value[1]
+                print("in the else of cek3")
+                print("k is: ",k)
+                #k is:  Token(type='FUN', value=(Token(type='LAM', value='lam'), [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...]))]))
+                X = k.value[1][0][0]
+                M = k.value[1][0][1][0]
+                e_prime = k.value[1][0][1][1]
             V = C#C.value
             #print("e_prime:",e_prime)
             #print("X:",X)
@@ -240,17 +184,9 @@ def cek3(C,E,K):
 
 
 def lookup(E, X):
-    '''
-        C,E,K:
-        Token(type='VAR', value='x')    [(Token(type='VAR', value='x'), 3, [...])]  []
-    '''
-    #print("In lookup")
     for e in E:
-        #print("e",e)
-        #print("e[0]",e[0])
         if X == e[0]:
             return e[1]
-    #print("Leaving lookup")
 
 
 def compute(o,x,y):
@@ -405,5 +341,3 @@ if __name__ == '__main__':
         print("Evaluator returned:",retval)
         print(outstring)
         assert(outputs[i] == (outstring,retval))
-        #print('\n')
-        #print('\n')
