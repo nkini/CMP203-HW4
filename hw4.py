@@ -243,13 +243,7 @@ def step(C, E, K):
 
     global outstring_eval
 
-    #print("\n")
-    #print("type(C)",type(C))
-    #print("C is ",C)
-    #print("C,E,K:")
-    #print('\t'.join(map(str,[C,E,K])))
-    #if K: print("K top is ",K[-1])
-
+    #change to the token type for testing conditions consistently
     if type(C) == tuple:
         C_tok = C[0]
     else:
@@ -260,21 +254,26 @@ def step(C, E, K):
 
         # check the top of stack
         if not K:
-            return C,'finished'
+            return C_tok,'finished'
 
         #CEK 4
-        if isinstance(K[-1],Token) and K[-1].type == 'ARG':
+        #K[-1] is the stack top
+        if K[-1].type == 'ARG':
             retval = cek4(C,E,K)
             if retval: return retval
 
         #CEK 3
-        if K[-1].type == 'FUN':#C.type == 'NUM' 
-            #print("got here")
-            retval = cek3(C,E,K)
-            if retval: return retval
+        #e.g. k is:  (Token(type='FUN', value=(Token(type='LAM', value='lam'), [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...]))])))
+        # Details given below in the definition of function cek3
+        if K[-1].type == 'FUN': 
+            if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'lam') or \
+               (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'lam'):
+                #print("got here")
+                retval = cek3(C,E,K)
+                if retval: return retval
 
         #CEK 5a
-        if C_tok.type == 'num' and K and K[-1].type == 'ARG11':
+        if K[-1].type == 'ARG11':
             #print('[cek5a]')
             outstring_eval += '  [cek5a]\n'
             b = C_tok.value
@@ -290,7 +289,7 @@ def step(C, E, K):
             return retval
 
         #CEK 5b
-        if C_tok.type == 'num' and K and K[-1].type == 'ARG22':
+        if K[-1].type == 'ARG22':
             #print('[cek5b]')
             outstring_eval += '  [cek5b]\n'
             b = C_tok.value
@@ -302,6 +301,7 @@ def step(C, E, K):
             V = compute(o, b1, b)
             return Token('num',V),[]
 
+        # This is equivalent to returning "stuck"
         return None, None
 
     else:   #Control dictates the rule to follow
@@ -312,7 +312,7 @@ def step(C, E, K):
             outstring_eval += '  [cek1]\n'
             M,N = C[1]
             K.append(Token('ARG',(N,E)))
-            return (M), E
+            return M, E
 
         #CEK 2b
         if C_tok.type == 'op2':
@@ -320,7 +320,7 @@ def step(C, E, K):
             outstring_eval += '  [cek2b]\n'
             M,N = C[1],C[2]
             K.append(Token('ARG12', (C[0].value,(N,E))))
-            return (M),E
+            return M,E
 
         #CEK 7  
         #if the control is a variable, we look it up in the environment
@@ -331,23 +331,52 @@ def step(C, E, K):
                 c = lookup(E,C)
                 return c
 
-        if type(C) == tuple:
-            
-            #CEK 2a
-            if C_tok.type == 'op1':
-                #print('[cek2a]')
-                outstring_eval += '  [cek2a]\n'
-                M = C[1].value
-                o = C[0].value
-                K.append(Token('ARG11', o))
-                if type(M) == int:
-                    return Token('num',M),E
-                else:
-                    return (M),E
+        #CEK 2a
+        if C_tok.type == 'op1':
+            #print('[cek2a]')
+            outstring_eval += '  [cek2a]\n'
+            M = C[1].value
+            o = C[0].value
+            K.append(Token('ARG11', o))
+            if type(M) == int:
+                return Token('num',M),E
+            else:
+                return M,E
 
         return None, None
 
     print "fell through"
+
+def cek3(C,E,K):
+
+    if C == tuple:
+        C = C[0]
+
+    global outstring_eval
+        
+    outstring_eval += '  [cek3]\n'
+    k = K.pop()
+    if type(k.value[0]) == tuple:
+        #e.g. k is:  (Token(type='FUN', value=(Token(type='LAM', value='lam'), [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...]))])))
+        # k is: Token(type='FUN', value=((Token(type='lam', value='lam'), (Token(type='var', value='x'), Token(type='var', value='x'))), []))
+        # k.value is: ((Token(type='lam', value='lam'), (Token(type='var', value='x'), Token(type='var', value='x'))), [])
+        # k.value[1] is: []
+        # k.value[0] is: (Token(type='lam', value='lam'), (Token(type='var', value='x'), Token(type='var', value='x')))
+        # k.value[0][1] is: (Token(type='var', value='x'), Token(type='var', value='x'))
+        # k.value[0][1][0] is: Token(type='var', value='x')
+        # k.value[0][1][1] is: Token(type='var', value='x')
+        X = k.value[0][1][0]
+        M = k.value[0][1][1]
+        e_prime = k.value[1]
+    else:
+        #print "k is:",k
+        X = k.value[1][0][0]
+        M = k.value[1][0][1][0]
+        e_prime = k.value[1][0][1][1]
+    V = C#C.value
+    e_prime.append((X,(V,E)))
+    return M,e_prime
+
 
 
 def cek6b(C,E,K):
@@ -363,7 +392,7 @@ def cek6b(C,E,K):
     N = k.value[1][0]
     e_prime = k.value[1][1]
     K.append(Token('ARG22', (o,(C.value,E))))
-    return (N),e_prime
+    return N,e_prime
 
 def cek4(C,E,K):
 
@@ -380,55 +409,22 @@ def cek4(C,E,K):
         N = k.value[0]
         e_prime = k.value[1]
         K.append(Token('FUN',(V,e)))
-        return (N), e_prime
-
-'''
-Token(type='FUN', value=([(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...])), ([...], (Token(type='LAM', value='lam'), [...]))], [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...])), ([...], (Token(type='LAM', value='lam'), [...]))]))
-'''
-
-def cek3(C,E,K):
-
-    if C == tuple:
-        C = C[0]
-
-    global outstring_eval
-    if K and K[-1].type == 'FUN':#C.type == 'NUM' 
-        #print("got here")
-        #print(K[-1])
-        if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'lam') or \
-           (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'lam'):
-            
-            #print(['cek3'])
-            #print("K[-1].value[0] is:",K[-1].value[0])
-            outstring_eval += '  [cek3]\n'
-            k = K.pop()
-            if type(k.value[0]) == tuple:
-                X = k.value[0][1][0]
-                M = k.value[0][1][1]
-                e_prime = k.value[1]
-            else:
-                #print("in the else of cek3")
-                #print("k is: ",k)
-                #k is:  Token(type='FUN', value=(Token(type='LAM', value='lam'), [(Token(type='VAR', value='x'), (Token(type='LAM', value='lam'), [...]))]))
-                X = k.value[1][0][0]
-                M = k.value[1][0][1][0]
-                e_prime = k.value[1][0][1][1]
-            V = C#C.value
-            #print("e_prime:",e_prime)
-            #print("X:",X)
-            #print("V:",V)
-            #print("E:",E)
-            #exit()
-            e_prime.append((X,(V,E)))
-            #print('\n',(M),e_prime,'\n')
-            return (M),e_prime
-    
+        return N, e_prime
 
 
 def lookup(E, X):
+    # E[-1::-1] enumerates in stack order (reverse of how a list is traversed
+    # >>> E
+    # [(Token(type='var', value='x'), (Token(type='num', value=3), [...]))]
     for e in E[-1::-1]:
+        # >>> e
+        # (Token(type='var', value='x'), (Token(type='num', value=3), [...]))
         if X == e[0]:
+            # >>> e[0]
+            # Token(type='var', value='x')
             return e[1]
+            # >>> e[1]
+            # (Token(type='num', value=3), [...]) A pair of Value and Env
 
 
 def compute(o,x,y):
@@ -451,14 +447,10 @@ def evaluate(ast):
     while True:
         control, environment = step(control, environment, stack)
 
-        #print("control, environment:",control, environment)
         if control is None and environment is None:
-            return "Stuck"
+            return 'Stuck'
 
         if stack == []  and isinstance(control, Token) and control.type == 'lam':
-            return 'function'
-
-        if stack == []  and isinstance(control, tuple) and isinstance(control[0],Token) and control[0].type == 'lam':
             return 'function'
 
         if stack == [] and isinstance(control, Token) and control.type == 'num':
