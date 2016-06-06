@@ -182,7 +182,7 @@ outstring_eval = ''
 
 def step(C, E, K):
 
-    global outstring
+    global outstring_eval
 
     #print("\n")
     #print("type(C)",type(C))
@@ -193,27 +193,27 @@ def step(C, E, K):
 
     #CEK 1
     #if isinstance(C[0], Token) and C[0].type == 'APP'
-    if type(C) == tuple and C[0].type == 'APP':
+    if type(C) == tuple and C[0].type == 'app':
         #print('[cek1]')
-        outstring += '  [cek1]\n'
+        outstring_eval += '  [cek1]\n'
         M,N = C[1]
         K.append(Token('ARG',(N,E)))
         return (M), E
 
     #CEK 2b
-    if type(C) == tuple and C[0].type == 'OP2':
+    if type(C) == tuple and C[0].type == 'op2':
         #print('[cek2b]')
-        outstring += '  [cek2b]\n'
+        outstring_eval += '  [cek2b]\n'
         M,N = C[1],C[2]
         K.append(Token('ARG12', (C[0].value,(N,E))))
         return (M),E
 
     #CEK 7  
     #if the control is a variable, we look it up in the environment
-    if type(C) == Token and C.type == 'VAR':
+    if type(C) == Token and C.type == 'var':
         if E:
             #print('[cek7]')
-            outstring += '  [cek7]\n'
+            outstring_eval += '  [cek7]\n'
             c = lookup(E,C)
             return c
 
@@ -242,18 +242,18 @@ def step(C, E, K):
     if type(C) == tuple:
         
         #CEK 2a
-        if C[0].type == 'OP1':
+        if C[0].type == 'op1':
             #print('[cek2a]')
-            outstring += '  [cek2a]\n'
+            outstring_eval += '  [cek2a]\n'
             M = C[1].value
             o = C[0].value
             K.append(Token('ARG11', o))
             if type(M) == int:
-                return Token('NUM',M),E
+                return Token('num',M),E
             else:
                 return (M),E
 
-        if C[0].type == 'LAM' and not K:
+        if C[0].type == 'lam' and not K:
             return C,E
             
     if isinstance(C, Token):
@@ -262,19 +262,19 @@ def step(C, E, K):
             return C, E
 
         #CEK 5a
-        if C.type == 'NUM' and K[-1].type == 'ARG11':
+        if C.type == 'num' and K[-1].type == 'ARG11':
             #print('[cek5a]')
-            outstring += '  [cek5a]\n'
+            outstring_eval += '  [cek5a]\n'
             b = C.value
             k = K.pop()
             o = k.value
             V = compute(o, b, None)
-            return Token('NUM',V),[]
+            return Token('num',V),[]
 
         #CEK 5b
-        if C.type == 'NUM' and K[-1].type == 'ARG22':
+        if C.type == 'num' and K[-1].type == 'ARG22':
             #print('[cek5b]')
-            outstring += '  [cek5b]\n'
+            outstring_eval += '  [cek5b]\n'
             b = C.value
             k = K.pop()
             o = k.value[0]
@@ -282,7 +282,7 @@ def step(C, E, K):
             e_prime = k.value[1][1]
             #print(o, b1, b)
             V = compute(o, b1, b)
-            return Token('NUM',V),[]
+            return Token('num',V),[]
 
 
     return None, None
@@ -290,12 +290,12 @@ def step(C, E, K):
 
 def cek6b(C,E,K):
     #print('[cek6b]')
-    global outstring
+    global outstring_eval
 
     if type(C) == tuple:
         C = C[0]
 
-    outstring += '  [cek6b]\n'
+    outstring_eval += '  [cek6b]\n'
     k = K.pop()
     o = k.value[0]
     N = k.value[1][0]
@@ -305,12 +305,12 @@ def cek6b(C,E,K):
 
 def cek4(C,E,K):
 
-    global outstring
+    global outstring_eval
 
     #print("This is K[-1]",K[-1])
     if K[-1].type == 'ARG':
         #print('[cek4]')
-        outstring += '  [cek4]\n'
+        outstring_eval += '  [cek4]\n'
         #print(type(C))
         V = C
         e = E
@@ -329,16 +329,16 @@ def cek3(C,E,K):
     if C == tuple:
         C = C[0]
 
-    global outstring
+    global outstring_eval
     if K and K[-1].type == 'FUN':#C.type == 'NUM' 
         #print("got here")
         #print(K[-1])
-        if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'LAM') or \
-           (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'LAM'):
+        if (type(K[-1].value[0]) == tuple and K[-1].value[0][0].type == 'lam') or \
+           (type(K[-1].value[0]) == Token and K[-1].value[0].type == 'lam'):
             
             #print(['cek3'])
             #print("K[-1].value[0] is:",K[-1].value[0])
-            outstring += '  [cek3]\n'
+            outstring_eval += '  [cek3]\n'
             k = K.pop()
             if type(k.value[0]) == tuple:
                 X = k.value[0][1][0]
@@ -394,14 +394,14 @@ def evaluate(ast):
         if control is None and environment is None:
             return "Stuck"
 
-        if stack == []  and isinstance(control, Token) and control.type == 'LAM':
+        if stack == []  and isinstance(control, Token) and control.type == 'lam':
             return 'function'
 
-        if stack == []  and isinstance(control, tuple) and isinstance(control[0],Token) and control[0].type == 'LAM':
+        if stack == []  and isinstance(control, tuple) and isinstance(control[0],Token) and control[0].type == 'lam':
             return 'function'
 
-        if stack == [] and isinstance(control, Token) and control.type == 'NUM':
-            return math.floor(control.value)
+        if stack == [] and isinstance(control, Token) and control.type == 'num':
+            return int(math.floor(control.value))
 
 ################# EXECUTION AND OUTPUT ####################
 
@@ -518,7 +518,7 @@ if __name__ == '__main__':
 
     #with open('reqdout.txt','w') as ft, open('recdout.txt','w') as fo:
     for i,inp in enumerate(inputs):
-        print "Input string:\n  ",inp
+        print "Input string:\n  "+inp
         scanner_tokens = generate_tokens(inp)
         buf = stringify_tokens_scanner(scanner_tokens)
         print "Scanner tokens:\n  "+', '.join(buf)
@@ -527,35 +527,22 @@ if __name__ == '__main__':
         screenout = screen(scanner_tokens)
         buf = stringify_tokens_screener(screenout)
         print "Parser tokens:\n  "+', '.join(buf)
-        #print outputs_screener[i]
         assert(', '.join(buf) == outputs_screener[i])
 
         outstring_ast = ''
         ast = parse(screenout)
-        #pprint(ast)
-        #print("Our output:\n"+outstring)
         print "Syntax tree:\n  "+ outstring_ast
         assert(outstring_ast == outputs_parser[i])
 
-        print
-'''
-    for i,inp in enumerate(inputs):
-        outstring = ''
-        print("Input:   ",inp)
-        scanout = scanner.generate_tokens(inp)
-        screenout = screener.screen(scanout)
-        print('\n')
-
-
-    for i,inp in enumerate(inputs):
-        print("Input:   ",inp)
-        outstring = ''
-        scanout = scanner.generate_tokens(inp)
-        screenout = screener.screen(scanout)
-        ast = parser.parse(screenout)
-        #pprint(ast)
+        outstring_eval = ''
         retval = evaluate(ast)
-        print("Evaluator returned:",retval)
-        print(outstring)
-        assert(outputs[i] == (outstring,retval))
-'''
+        if outstring_eval:
+            print "Sequence of rules:\n" + outstring_eval.strip('\n')
+        else:
+            print "Sequence of rules:"
+        print "Answer:\n  "+str(retval)
+        assert(outputs_evaluator[i] == (outstring_eval,retval))
+
+        print
+
+print "done"
