@@ -250,91 +250,50 @@ def step(C, E, K):
     #print('\t'.join(map(str,[C,E,K])))
     #if K: print("K top is ",K[-1])
 
-    #CEK 1
-    #if isinstance(C[0], Token) and C[0].type == 'APP'
-    if type(C) == tuple and C[0].type == 'app':
-        #print('[cek1]')
-        outstring_eval += '  [cek1]\n'
-        M,N = C[1]
-        K.append(Token('ARG',(N,E)))
-        return (M), E
-
-    #CEK 2b
-    if type(C) == tuple and C[0].type == 'op2':
-        #print('[cek2b]')
-        outstring_eval += '  [cek2b]\n'
-        M,N = C[1],C[2]
-        K.append(Token('ARG12', (C[0].value,(N,E))))
-        return (M),E
-
-    #CEK 7  
-    #if the control is a variable, we look it up in the environment
-    if type(C) == Token and C.type == 'var':
-        if E:
-            #print('[cek7]')
-            outstring_eval += '  [cek7]\n'
-            c = lookup(E,C)
-            return c
-
-        #if environment is empty, return an error
-        # and if K is empty... not sure about this
-        if not K:
-            return None,None
-
-    #CEK 4
-    if K and isinstance(K[-1],Token) and K[-1].type == 'ARG':
-        retval = cek4(C,E,K)
-        if retval: return retval
-
-    #CEK 3
-    if K and K[-1].type == 'FUN':#C.type == 'NUM' 
-        #print("got here")
-        retval = cek3(C,E,K)
-        if retval: return retval
-
-    #CEK 6b
-    if K and K[-1].type == 'ARG12':
-        retval = cek6b(C,E,K)
-        #if retval : return retval
-        return retval
-
     if type(C) == tuple:
-        
-        #CEK 2a
-        if C[0].type == 'op1':
-            #print('[cek2a]')
-            outstring_eval += '  [cek2a]\n'
-            M = C[1].value
-            o = C[0].value
-            K.append(Token('ARG11', o))
-            if type(M) == int:
-                return Token('num',M),E
-            else:
-                return (M),E
+        C_tok = C[0]
+    else:
+        C_tok = C
 
-        if C[0].type == 'lam' and not K:
-            return C,E
-            
-    if isinstance(C, Token):
+    # if C is a type of value
+    if C_tok.type == 'num' or C_tok.type == 'lam':
 
+        # check the top of stack
         if not K:
-            return C, E
+            return C,'finished'
+
+        #CEK 4
+        if isinstance(K[-1],Token) and K[-1].type == 'ARG':
+            retval = cek4(C,E,K)
+            if retval: return retval
+
+        #CEK 3
+        if K[-1].type == 'FUN':#C.type == 'NUM' 
+            #print("got here")
+            retval = cek3(C,E,K)
+            if retval: return retval
 
         #CEK 5a
-        if C.type == 'num' and K[-1].type == 'ARG11':
+        if C_tok.type == 'num' and K and K[-1].type == 'ARG11':
             #print('[cek5a]')
             outstring_eval += '  [cek5a]\n'
-            b = C.value
+            b = C_tok.value
             k = K.pop()
             o = k.value
             V = compute(o, b, None)
             return Token('num',V),[]
 
+        #CEK 6b
+        if K[-1].type == 'ARG12':
+            retval = cek6b(C,E,K)
+            #if retval : return retval
+            return retval
+
         #CEK 5b
-        if C.type == 'num' and K[-1].type == 'ARG22':
+        if C_tok.type == 'num' and K and K[-1].type == 'ARG22':
             #print('[cek5b]')
             outstring_eval += '  [cek5b]\n'
-            b = C.value
+            b = C_tok.value
             k = K.pop()
             o = k.value[0]
             b1 = k.value[1][0]
@@ -343,8 +302,52 @@ def step(C, E, K):
             V = compute(o, b1, b)
             return Token('num',V),[]
 
+        return None, None
 
-    return None, None
+    else:   #Control dictates the rule to follow
+
+        #CEK 1
+        if C_tok.type == 'app':
+            #print('[cek1]')
+            outstring_eval += '  [cek1]\n'
+            M,N = C[1]
+            K.append(Token('ARG',(N,E)))
+            return (M), E
+
+        #CEK 2b
+        if C_tok.type == 'op2':
+            #print('[cek2b]')
+            outstring_eval += '  [cek2b]\n'
+            M,N = C[1],C[2]
+            K.append(Token('ARG12', (C[0].value,(N,E))))
+            return (M),E
+
+        #CEK 7  
+        #if the control is a variable, we look it up in the environment
+        if C_tok.type == 'var':
+            if E:
+                #print('[cek7]')
+                outstring_eval += '  [cek7]\n'
+                c = lookup(E,C)
+                return c
+
+        if type(C) == tuple:
+            
+            #CEK 2a
+            if C_tok.type == 'op1':
+                #print('[cek2a]')
+                outstring_eval += '  [cek2a]\n'
+                M = C[1].value
+                o = C[0].value
+                K.append(Token('ARG11', o))
+                if type(M) == int:
+                    return Token('num',M),E
+                else:
+                    return (M),E
+
+        return None, None
+
+    print "fell through"
 
 
 def cek6b(C,E,K):
@@ -599,6 +602,7 @@ if __name__ == '__main__':
         else:
             print "Sequence of rules:"
         print "Answer:\n  "+str(retval)
+        #print outputs_evaluator[i]
         assert(outputs_evaluator[i] == (outstring_eval,retval))
 
         print
