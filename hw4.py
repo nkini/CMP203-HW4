@@ -108,70 +108,64 @@ def pprint_screener_output(tokens,per_line=False):
 
 
 
-################################ PARSER ################################
+################################ AST ################################
 
-import scanner
-import screener
-from pprint import pprint
-
-outstring = ''
+outstring_ast = ''
 
 def E(tokens):
 
-    global outstring
+    global outstring_ast
 
-    if tokens[0].type == 'VAR':
-        outstring += 'var('+tokens[0].value+')'
+    if tokens[0].type == 'var':
+        outstring_ast += 'var('+tokens[0].value+')'
         return tokens[0], tokens[1:]
 
-    elif tokens[0].type == 'NUM':
-        outstring += 'num('+str(tokens[0].value)+')'
+    elif tokens[0].type == 'num':
+        outstring_ast += 'num('+str(tokens[0].value)+')'
         return tokens[0], tokens[1:]
 
-    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'LAM' and tokens[2].type == 'VAR':
-        outstring += 'lam('+tokens[2].value+', '
+    elif tokens[0].type == 'Lparen' and tokens[1].type == 'lam' and tokens[2].type == 'var':
+        outstring_ast += 'lam('+tokens[2].value+', '
         body,rem1 = E(tokens[3:])
-        if rem1[0].type == 'RPAREN':
-            outstring += ')'
+        if rem1[0].type == 'Rparen':
+            outstring_ast += ')'
             return (tokens[1], (tokens[2], body)), rem1[1:]
         else:
             return None,'Error'
 
-    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'APP':
-        outstring += 'app('
+    elif tokens[0].type == 'Lparen' and tokens[1].type == 'app':
+        outstring_ast += 'app('
         fun, rem1 = E(tokens[2:])
-        outstring += ', '
+        outstring_ast += ', '
         arg, rem2 = E(rem1)
-        if rem2[0].type == 'RPAREN':
-            outstring += ')'
+        if rem2[0].type == 'Rparen':
+            outstring_ast += ')'
             return (tokens[1], (fun, arg)), rem2[1:]
         else:
             return None,'Error'
 
-    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP1':
-        outstring += 'op1('+tokens[1].value+', '
+    elif tokens[0].type == 'Lparen' and tokens[1].type == 'op1':
+        outstring_ast += 'op1('+tokens[1].value+', '
         body, rem = E(tokens[2:])
-        if rem[0].type == 'RPAREN':
-            outstring += ')'
+        if rem[0].type == 'Rparen':
+            outstring_ast += ')'
             return (tokens[1], body), rem[1:]
         else:
             return None, 'Error'
 
-    elif tokens[0].type == 'LPAREN' and tokens[1].type == 'OP2':
-        outstring += 'op2('+tokens[1].value+', '
+    elif tokens[0].type == 'Lparen' and tokens[1].type == 'op2':
+        outstring_ast += 'op2('+tokens[1].value+', '
         body1, rem1 = E(tokens[2:])
-        outstring += ', '
+        outstring_ast += ', '
         body2, rem2 = E(rem1)
-        if rem2[0].type == 'RPAREN':
-            outstring += ')'
+        if rem2[0].type == 'Rparen':
+            outstring_ast += ')'
             return (tokens[1], body1, body2), rem2[1:]
         else:
             return None,'Error'
 
     else:
         return None, 'Error'
-
-
 
 def parse(tokens):
     ast,rem = E(tokens)
@@ -183,16 +177,8 @@ def parse(tokens):
 
 ################################ EVALUATOR  ################################
 
-import scanner
-import screener
-import parser
-from pprint import pprint
 
-from scanner import Token
-
-#from collections import namedtuple
-
-outstring = ''
+outstring_eval = ''
 
 def step(C, E, K):
 
@@ -541,26 +527,23 @@ if __name__ == '__main__':
         screenout = screen(scanner_tokens)
         buf = stringify_tokens_screener(screenout)
         print "Parser tokens:\n  "+', '.join(buf)
-        print outputs_screener[i]
+        #print outputs_screener[i]
         assert(', '.join(buf) == outputs_screener[i])
-'''
-    for i,inp in enumerate(inputs):
-        print("Input:   ",inp)
-        scanout = scanner.generate_tokens(inp)
-        #pprint_screener_output(screenout)
-        print('\n')
 
-    
+        outstring_ast = ''
+        ast = parse(screenout)
+        #pprint(ast)
+        #print("Our output:\n"+outstring)
+        print "Syntax tree:\n  "+ outstring_ast
+        assert(outstring_ast == outputs_parser[i])
+
+        print
+'''
     for i,inp in enumerate(inputs):
         outstring = ''
         print("Input:   ",inp)
         scanout = scanner.generate_tokens(inp)
         screenout = screener.screen(scanout)
-        ast = parse(screenout)
-        #pprint(ast)
-        #print("Our output:\n"+outstring)
-        print(outstring)
-        assert(outstring == outputs[i])
         print('\n')
 
 
