@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # TEAM:
 # Sneha Das (sndas@ucsc.edu)
 # Ankit Gupta (agupta29@ucsc.edu)
@@ -10,6 +12,8 @@ import re
 import collections
 from pprint import pprint
 import math
+import sys
+import fileinput
 
 # We used regular expressions (sorry!) with the following functionality:
 #(?P<label>...) Similar to regular parentheses, but the substring matched by the group is accessible via the symbolic group name label
@@ -457,146 +461,35 @@ def evaluate(ast):
             return int(math.floor(control.value))
 
 ################# EXECUTION AND OUTPUT ####################
+for inp in fileinput.input():
 
-if __name__ == '__main__':
+    inp = inp.strip('\n').strip()
 
-    inputs = ["42", "(app   43 44)", "(lam hello (app hello hello))", "(lam x (app y (add1 (sub1 (iszero (+ 2 (- 3 (* hello (^ 33 44)))))))))", "(^ (-0 2) (-0 5))", "blah", "(app (+ 2 3) 4)", "(iszero 2)", "(iszero 0)", "(app (lam x x) 3)", "(app (app (app (app (lam x (app x x)) (lam f (lam n (lam a (lam b (app (app n (lam m (app (app (app (app f f) m) a) (app a b)))) b)))))) (lam s (lam z (app s (lam s (lam z z)))))) (lam x (+ x 1))) 5)", "(lam z (app (lam x (app x x)) (lam x (app x x))))"]
+    print "Input string:\n  "+inp
+    scanner_tokens = generate_tokens(inp)
+    buf = stringify_tokens_scanner(scanner_tokens)
+    print "Scanner tokens:\n  "+', '.join(buf)
+    #assert(outputs_scanner[i] == ', '.join(buf))
 
-    outputs_scanner = ["NUM(42)", "Lparen, ID(app), WS, NUM(43), WS, NUM(44), Rparen", "Lparen, ID(lam), WS, ID(hello), WS, Lparen, ID(app), WS, ID(hello), WS, ID(hello), Rparen, Rparen", "Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(y), WS, Lparen, ID(add1), WS, Lparen, ID(sub1), WS, Lparen, ID(iszero), WS, Lparen, OP(+), WS, NUM(2), WS, Lparen, OP(-), WS, NUM(3), WS, Lparen, OP(*), WS, ID(hello), WS, Lparen, OP(^), WS, NUM(33), WS, NUM(44), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen", "Lparen, OP(^), WS, Lparen, OP(-), NUM(0), WS, NUM(2), Rparen, WS, Lparen, OP(-), NUM(0), WS, NUM(5), Rparen, Rparen", "ID(blah)", "Lparen, ID(app), WS, Lparen, OP(+), WS, NUM(2), WS, NUM(3), Rparen, WS, NUM(4), Rparen", "Lparen, ID(iszero), WS, NUM(2), Rparen", "Lparen, ID(iszero), WS, NUM(0), Rparen", "Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, ID(x), Rparen, WS, NUM(3), Rparen", "Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(f), WS, Lparen, ID(lam), WS, ID(n), WS, Lparen, ID(lam), WS, ID(a), WS, Lparen, ID(lam), WS, ID(b), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, ID(n), WS, Lparen, ID(lam), WS, ID(m), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, Lparen, ID(app), WS, ID(f), WS, ID(f), Rparen, WS, ID(m), Rparen, WS, ID(a), Rparen, WS, Lparen, ID(app), WS, ID(a), WS, ID(b), Rparen, Rparen, Rparen, Rparen, WS, ID(b), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(s), WS, Lparen, ID(lam), WS, ID(z), WS, Lparen, ID(app), WS, ID(s), WS, Lparen, ID(lam), WS, ID(s), WS, Lparen, ID(lam), WS, ID(z), WS, ID(z), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, OP(+), WS, ID(x), WS, NUM(1), Rparen, Rparen, Rparen, WS, NUM(5), Rparen", "Lparen, ID(lam), WS, ID(z), WS, Lparen, ID(app), WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, WS, Lparen, ID(lam), WS, ID(x), WS, Lparen, ID(app), WS, ID(x), WS, ID(x), Rparen, Rparen, Rparen, Rparen"]
+    screenout = screen(scanner_tokens)
+    buf = stringify_tokens_screener(screenout)
+    print "Parser tokens:\n  "+', '.join(buf)
+    #assert(', '.join(buf) == outputs_screener[i])
 
-    outputs_screener = ["num(42)", "Lparen, app, num(43), num(44), Rparen", "Lparen, lam, var(hello), Lparen, app, var(hello), var(hello), Rparen, Rparen", "Lparen, lam, var(x), Lparen, app, var(y), Lparen, op1(add1), Lparen, op1(sub1), Lparen, op1(iszero), Lparen, op2(+), num(2), Lparen, op2(-), num(3), Lparen, op2(*), var(hello), Lparen, op2(^), num(33), num(44), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Rparen", "Lparen, op2(^), Lparen, op2(-), num(0), num(2), Rparen, Lparen, op2(-), num(0), num(5), Rparen, Rparen", "var(blah)", "Lparen, app, Lparen, op2(+), num(2), num(3), Rparen, num(4), Rparen", "Lparen, op1(iszero), num(2), Rparen", "Lparen, op1(iszero), num(0), Rparen", "Lparen, app, Lparen, lam, var(x), var(x), Rparen, num(3), Rparen", "Lparen, app, Lparen, app, Lparen, app, Lparen, app, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Lparen, lam, var(f), Lparen, lam, var(n), Lparen, lam, var(a), Lparen, lam, var(b), Lparen, app, Lparen, app, var(n), Lparen, lam, var(m), Lparen, app, Lparen, app, Lparen, app, Lparen, app, var(f), var(f), Rparen, var(m), Rparen, var(a), Rparen, Lparen, app, var(a), var(b), Rparen, Rparen, Rparen, Rparen, var(b), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Lparen, lam, var(s), Lparen, lam, var(z), Lparen, app, var(s), Lparen, lam, var(s), Lparen, lam, var(z), var(z), Rparen, Rparen, Rparen, Rparen, Rparen, Rparen, Lparen, lam, var(x), Lparen, op2(+), var(x), num(1), Rparen, Rparen, Rparen, num(5), Rparen", "Lparen, lam, var(z), Lparen, app, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Lparen, lam, var(x), Lparen, app, var(x), var(x), Rparen, Rparen, Rparen, Rparen"]
+    outstring_ast = ''
+    ast = parse(screenout)
+    print "Syntax tree:\n  "+ outstring_ast
+    #assert(outstring_ast == outputs_parser[i])
 
-    outputs_parser = ["num(42)", "app(num(43), num(44))", "lam(hello, app(var(hello), var(hello)))", "lam(x, app(var(y), op1(add1, op1(sub1, op1(iszero, op2(+, num(2), op2(-, num(3), op2(*, var(hello), op2(^, num(33), num(44))))))))))", "op2(^, op2(-, num(0), num(2)), op2(-, num(0), num(5)))", "var(blah)", "app(op2(+, num(2), num(3)), num(4))", "op1(iszero, num(2))", "op1(iszero, num(0))", "app(lam(x, var(x)), num(3))", "app(app(app(app(lam(x, app(var(x), var(x))), lam(f, lam(n, lam(a, lam(b, app(app(var(n), lam(m, app(app(app(app(var(f), var(f)), var(m)), var(a)), app(var(a), var(b))))), var(b))))))), lam(s, lam(z, app(var(s), lam(s, lam(z, var(z))))))), lam(x, op2(+, var(x), num(1)))), num(5))", "lam(z, app(lam(x, app(var(x), var(x))), lam(x, app(var(x), var(x)))))"]
+    outstring_eval = ''
+    retval = evaluate(ast)
+    if outstring_eval:
+        print "Sequence of rules:\n" + outstring_eval.strip('\n')
+    else:
+        print "Sequence of rules:"
+    print "Answer:\n  "+str(retval)
+    #assert(outputs_evaluator[i] == (outstring_eval,retval))
 
-    outputs_evaluator = [('',42),
-('''  [cek1]
-  [cek4]
-''','Stuck'),
-('','function'),
-('','function'),
-('''  [cek2b]
-  [cek2b]
-  [cek6b]
-  [cek5b]
-  [cek6b]
-  [cek2b]
-  [cek6b]
-  [cek5b]
-  [cek5b]
-''',-1),
-('','Stuck'),
-('''  [cek1]
-  [cek2b]
-  [cek6b]
-  [cek5b]
-  [cek4]
-''','Stuck'),
-('''  [cek2a]
-  [cek5a]
-''',0),
-('''  [cek2a]
-  [cek5a]
-''',1),
-('''  [cek1]
-  [cek4]
-  [cek3]
-  [cek7]
-''',3),
-('''  [cek1]
-  [cek1]
-  [cek1]
-  [cek1]
-  [cek4]
-  [cek3]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek4]
-  [cek3]
-  [cek4]
-  [cek3]
-  [cek4]
-  [cek3]
-  [cek1]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek3]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek3]
-  [cek1]
-  [cek1]
-  [cek1]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek4]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek2b]
-  [cek7]
-  [cek6b]
-  [cek5b]
-  [cek3]
-  [cek1]
-  [cek1]
-  [cek7]
-  [cek4]
-  [cek3]
-  [cek4]
-  [cek7]
-  [cek3]
-  [cek7]
-''',6),
-('','function')]
-
-
-    #with open('reqdout.txt','w') as ft, open('recdout.txt','w') as fo:
-    for i,inp in enumerate(inputs):
-        print "Input string:\n  "+inp
-        scanner_tokens = generate_tokens(inp)
-        buf = stringify_tokens_scanner(scanner_tokens)
-        print "Scanner tokens:\n  "+', '.join(buf)
-        assert(outputs_scanner[i] == ', '.join(buf))
-
-        screenout = screen(scanner_tokens)
-        buf = stringify_tokens_screener(screenout)
-        print "Parser tokens:\n  "+', '.join(buf)
-        assert(', '.join(buf) == outputs_screener[i])
-
-        outstring_ast = ''
-        ast = parse(screenout)
-        print "Syntax tree:\n  "+ outstring_ast
-        assert(outstring_ast == outputs_parser[i])
-
-        outstring_eval = ''
-        retval = evaluate(ast)
-        if outstring_eval:
-            print "Sequence of rules:\n" + outstring_eval.strip('\n')
-        else:
-            print "Sequence of rules:"
-        print "Answer:\n  "+str(retval)
-        #print outputs_evaluator[i]
-        assert(outputs_evaluator[i] == (outstring_eval,retval))
-
-        print
+    print
 
 print "done"
