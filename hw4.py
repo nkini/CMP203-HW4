@@ -57,7 +57,7 @@ def generate_tokens(text, pattern=master_pattern):
             tok = Token('NUM',int(tok.value))
             tokens[i] = tok
     # Each element of the python list tokens is a scanner token
-`   # tokens[0] is the first scanner token tokens[n] is the nth etc
+    # tokens[0] is the first scanner token tokens[n] is the nth etc
     # tokens[0].type is the scanner class of the first scanner token
     # tokens[0].value is the instance (substring of the input string) of the first scanner token
     return tokens
