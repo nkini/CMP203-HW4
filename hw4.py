@@ -1,9 +1,19 @@
+# TEAM:
+# Sneha Das (sndas@ucsc.edu)
+# Ankit Gupta (agupta29@ucsc.edu)
+# Nikhil Kini (nkini@ucsc.edu)
+
+
 ################################ SCANNER ################################
 
 import re
 import collections
 from pprint import pprint
+import math
 
+# We used regular expressions (sorry!) with the following functionality:
+#(?P<label>...) Similar to regular parentheses, but the substring matched by the group is accessible via the symbolic group name label
+# So the regular expression begins immediately after >
 ID      = r'(?P<ID>[a-zA-Z][a-zA-Z0-9]*)'
 NUM     = r'(?P<NUM>\d+)'
 OP      = r'(?P<OP>[+\-*^])'
@@ -11,24 +21,45 @@ LPAREN  = r'(?P<Lparen>\()'
 RPAREN  = r'(?P<Rparen>\))'
 WS      = r'(?P<WS>\s+)'
 
+# Match ID or NUM or OP or LPAREN ...
 master_pattern = re.compile('|'.join((ID, NUM, OP, LPAREN, RPAREN, WS)))
 
-class Token(collections.namedtuple('Token',['type','value'])):
-    __slots__ = ()
-    '''
-    def __repr__(self):
-        if self.type in ['LPAREN','RPAREN','WS']: return self.type
-        elif self.type in ['LAM','APP','OP1']: return (self.value).lower()
-        else: return (self.type+'('+self.value+')').lower()
-    '''
+'''
+ Token is the datatype we have used for the Abstract Syntax Tree nodes
+
+ namedtuple():  factory function for creating tuple subclasses with named fields
+
+ collections.namedtuple(typename, field_names)
+
+ Returns a new tuple subclass named typename. The new subclass is used to create tuple-like objects that have fields accessible by attribute lookup as well as being indexable and iterable. In our case, typename is Token and this is the subclass that we use for our AST, as well as for Scanner/Screener/Parser tokens.
+
+ The field_names are a sequence of strings such as ['x', 'y']. In out case, field_names are type and value.
+
+    Example:
+    Creating and accessing a NUM token:
+        >>> tok = Token('NUM',42)
+        >>> tok.type
+        'NUM'
+        >>> tok.value
+        42
+'''
+
+Token = collections.namedtuple('Token', ['type', 'value'])
 
 def generate_tokens(text, pattern=master_pattern):
+    # match the 'master' pattern - one regexp with all constituent token regexps ORed
     scanner = pattern.scanner(text)
+    # iterate over the matched regexps
+    # m.lastgroup is the label in (?P<label>...)
     tokens = [Token(m.lastgroup, m.group()) for m in iter(scanner.match, None)]
     for i,tok in enumerate(tokens):
         if tok.type == 'NUM':
             tok = Token('NUM',int(tok.value))
             tokens[i] = tok
+    # Each element of the python list tokens is a scanner token
+`   # tokens[0] is the first scanner token tokens[n] is the nth etc
+    # tokens[0].type is the scanner class of the first scanner token
+    # tokens[0].value is the instance (substring of the input string) of the first scanner token
     return tokens
 
 def stringify_tokens_scanner(tokens):
@@ -40,17 +71,20 @@ def stringify_tokens_scanner(tokens):
             buf.append(token.type+'('+str(token.value)+')')
     return buf
 
-def pprint_scanner_output(tokens,per_line=False):
-    buf = stringify_tokens_scanner(tokens)
-    if per_line:
-        print(',\n'.join(buf))
-    else:
-        print("Our output:     ",', '.join(buf))
-        print("Expected output:",outputs[i].upper())
-
 ################################ SCREENER ################################
 
+'''
+token_map is used to map from scanner tokens to parser tokens
 
+The Token class is once again used for defining Parser tokens
+
+Some parser tokens have values (op2,op1,var,num) while others don't (lam,app)
+Wherever there are no values, the type itself is used as value
+Parser tokens for Lparen and Rparen are simply Scanner tokens passed through as is e.g. Token('Lparen','(')
+
+Parser tokens that have variable values (num,var) are not part of the map and are created at [**1**]
+
+'''
 token_map = {
 
     'ID' : { 
@@ -71,20 +105,31 @@ token_map = {
 
 def screen(inp, token_map=token_map):
 
+    # Output 
     output = []
 
     for token in inp:        
-
+        # Drop token
         if token.type == 'WS': continue
+        # Pass through token
         elif token.type in ['Lparen','Rparen']: output.append(token)
+        #[**1**]
         elif token.type == 'NUM': output.append(Token('num',token.value))
+        # tokens in token_map (Identifiers and operators)
         elif token.type in token_map:
+            # Reserved keywords and operators
             if token.value in token_map[token.type]:
                 output.append(token_map[token.type][token.value])
             else:
+                #[**1**]
+                # variable names
                 output.append(Token('var',token.value))
         else: "Print something's not right"
-
+    # output is a python list of parser tokens
+    # output[0] is the first parser token, output[n] is the nth etc
+    # output[0].type is the parser class of the first parser token
+    # output[0].value is only truly useful in the case where token.type is 'var','num','op1','op2' and 
+    #                   represents the specific value of the variable/number/operator
     return output
 
 
@@ -97,17 +142,6 @@ def stringify_tokens_screener(tokens):
             buf.append(token.type+'('+str(token.value)+')')
     return buf
 
-
-def pprint_screener_output(tokens,per_line=False):
-    buf = stringify_tokens_screener(tokens)
-    if per_line:
-        print(',\n'.join(buf))
-    else:
-        print("Our output:     ",', '.join(buf))
-        print("Expected output:",outputs[i])
-
-
-
 ################################ AST ################################
 
 outstring_ast = ''
@@ -118,6 +152,10 @@ def E(tokens):
 
     if tokens[0].type == 'var':
         outstring_ast += 'var('+tokens[0].value+')'
+        # a,b is Syntactic sugar for (a,b)
+        # here we return a tuple tup  of 2 elements:
+        #  tup[0] = tokens[0] -> first element in the list tokens
+        #  tup[1] = tokens[1:] -> the list of the elements from 2 to the end of the list tokens
         return tokens[0], tokens[1:]
 
     elif tokens[0].type == 'num':
@@ -129,6 +167,13 @@ def E(tokens):
         body,rem1 = E(tokens[3:])
         if rem1[0].type == 'Rparen':
             outstring_ast += ')'
+            # Once again, returns a tuple tup
+            # tup[0] -> (tokens[1], (tokens[2], body)) -> is itself a tuple
+            #   tup[0][0] -> tokens[1] -> Token('lam','lam') -> a token indicating that this is a tuple denoting a lambda expression
+            #   tup[0][1] ->  (tokens[2], body) -> Also a tuple that contains:
+            #       tup[0][1][0] -> tokens[2] -> the variable for the lambda expression
+            #       tup[0][1][1] -> body -> the body of the lambda expression
+            # tup[1] -> rem1[1:] -> is the remainder of the tokens left after parsing till the body and rparen corresponding to the current lambda expression
             return (tokens[1], (tokens[2], body)), rem1[1:]
         else:
             return None,'Error'
@@ -140,6 +185,13 @@ def E(tokens):
         arg, rem2 = E(rem1)
         if rem2[0].type == 'Rparen':
             outstring_ast += ')'
+            # Once again, returns a tuple tup
+            # tup[0] -> (tokens[1], (fun, arg)) -> is itself a tuple
+            #   tup[0][0] -> tokens[1] -> Token('app','app') -> a token indicating that this is a tuple denoting a function application
+            #   tup[0][1] ->  (fun, arg) -> Also a tuple that contains:
+            #       tup[0][1][0] -> fun -> the definition for the function
+            #       tup[0][1][1] -> arg -> the argument to the function
+            # tup[1] -> rem2[1:] -> is the remainder of the tokens left after parsing till the body and rparen corresponding to the current lambda expression
             return (tokens[1], (fun, arg)), rem2[1:]
         else:
             return None,'Error'
@@ -149,6 +201,9 @@ def E(tokens):
         body, rem = E(tokens[2:])
         if rem[0].type == 'Rparen':
             outstring_ast += ')'
+            # returns a tuple tup
+            # tup[0][0] -> tokens[1] -> Token('op1','X') where X can be add1,sub1,iszero1
+            # tup[0][1] -> body -> the expression to which op1 needs to be applied
             return (tokens[1], body), rem[1:]
         else:
             return None, 'Error'
@@ -160,6 +215,10 @@ def E(tokens):
         body2, rem2 = E(rem1)
         if rem2[0].type == 'Rparen':
             outstring_ast += ')'
+            # returns a tuple tup
+            # tup[0][0] -> tokens[1] -> Token('op2','X') where X can be +,-,*,^
+            # tup[0][1] -> body1 -> operand1
+            # tup[0][2] -> body2 -> operand2
             return (tokens[1], body1, body2), rem2[1:]
         else:
             return None,'Error'
@@ -382,7 +441,6 @@ def compute(o,x,y):
         if o == 'sub1': return x-1
         if o == 'iszero': return int(x == 0)
 
-import math
 def evaluate(ast):
     control = ast
     environment = []
