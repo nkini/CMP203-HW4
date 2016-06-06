@@ -50,29 +50,22 @@ def pprint_scanner_output(tokens,per_line=False):
 
 ################################ SCREENER ################################
 
-from pprint import pprint
-import scanner
-import re
-import collections
-from scanner import Token
-
-#Token = collections.namedtuple('Token',['type','value'])
 
 token_map = {
 
     'ID' : { 
-            'lam'   : Token('LAM','lam'),
-            'app'   : Token('APP','app'),
-            'add1'  : Token('OP1','add1'),
-            'sub1'  : Token('OP1','sub1'),
-            'iszero': Token('OP1','iszero')
+            'lam'   : Token('lam','lam'),
+            'app'   : Token('app','app'),
+            'add1'  : Token('op1','add1'),
+            'sub1'  : Token('op1','sub1'),
+            'iszero': Token('op1','iszero')
          },
 
     'OP' : {
-            '+' : Token('OP2','+'),
-            '-' : Token('OP2','-'),
-            '*' : Token('OP2','*'),
-            '^' : Token('OP2','^')
+            '+' : Token('op2','+'),
+            '-' : Token('op2','-'),
+            '*' : Token('op2','*'),
+            '^' : Token('op2','^')
         }
 }
 
@@ -83,12 +76,13 @@ def screen(inp, token_map=token_map):
     for token in inp:        
 
         if token.type == 'WS': continue
-        elif token.type in ['LPAREN','RPAREN','NUM']: output.append(token)
+        elif token.type in ['Lparen','Rparen']: output.append(token)
+        elif token.type == 'NUM': output.append(Token('num',token.value))
         elif token.type in token_map:
             if token.value in token_map[token.type]:
                 output.append(token_map[token.type][token.value])
             else:
-                output.append(Token('VAR',token.value))
+                output.append(Token('var',token.value))
         else: "Print something's not right"
 
     return output
@@ -97,7 +91,7 @@ def screen(inp, token_map=token_map):
 def stringify_tokens_screener(tokens):
     buf = []
     for token in tokens:
-        if token.type in ['LPAREN','RPAREN','APP','LAM'] : 
+        if token.type in ['Lparen','Rparen','app','lam'] : 
             buf.append(token.type)
         else: 
             buf.append(token.type+'('+str(token.value)+')')
@@ -539,19 +533,21 @@ if __name__ == '__main__':
     #with open('reqdout.txt','w') as ft, open('recdout.txt','w') as fo:
     for i,inp in enumerate(inputs):
         print "Input string:\n  ",inp
-        output_tokens = generate_tokens(inp)
-        buf = stringify_tokens_scanner(output_tokens)
+        scanner_tokens = generate_tokens(inp)
+        buf = stringify_tokens_scanner(scanner_tokens)
         print "Scanner tokens:\n  "+', '.join(buf)
         assert(outputs_scanner[i] == ', '.join(buf))
+
+        screenout = screen(scanner_tokens)
+        buf = stringify_tokens_screener(screenout)
+        print "Parser tokens:\n  "+', '.join(buf)
+        print outputs_screener[i]
+        assert(', '.join(buf) == outputs_screener[i])
 '''
     for i,inp in enumerate(inputs):
         print("Input:   ",inp)
         scanout = scanner.generate_tokens(inp)
-        screenout = screen(scanout)
-        buf = stringify_tokens(screenout)
         #pprint_screener_output(screenout)
-        print(', '.join(buf))
-        assert(', '.join(buf).upper() == outputs[i].upper())
         print('\n')
 
     
