@@ -7,8 +7,8 @@ from pprint import pprint
 ID      = r'(?P<ID>[a-zA-Z][a-zA-Z0-9]*)'
 NUM     = r'(?P<NUM>\d+)'
 OP      = r'(?P<OP>[+\-*^])'
-LPAREN  = r'(?P<LPAREN>\()'
-RPAREN  = r'(?P<RPAREN>\))'
+LPAREN  = r'(?P<Lparen>\()'
+RPAREN  = r'(?P<Rparen>\))'
 WS      = r'(?P<WS>\s+)'
 
 master_pattern = re.compile('|'.join((ID, NUM, OP, LPAREN, RPAREN, WS)))
@@ -34,7 +34,7 @@ def generate_tokens(text, pattern=master_pattern):
 def stringify_tokens_scanner(tokens):
     buf = []
     for token in tokens:
-        if token.type in ['LPAREN','RPAREN','WS'] : 
+        if token.type in ['Lparen','Rparen','WS'] : 
             buf.append(token.type)
         else: 
             buf.append(token.type+'('+str(token.value)+')')
