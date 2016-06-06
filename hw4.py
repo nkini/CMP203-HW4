@@ -279,12 +279,14 @@ def step(C, E, K):
         #CEK 5a
         if K[-1].type == 'ARG11':
             #print('[cek5a]')
-            outstring_eval += '  [cek5a]\n'
             b = C_tok.value
             k = K.pop()
             o = k.value
-            V = compute(o, b, None)
-            return Token('num',V),[]
+            # to be sure that delta exists
+            if o in ['add1','sub1','iszero'] and b is not 'lam':
+                V = compute(o, b, None)
+                outstring_eval += '  [cek5a]\n'
+                return Token('num',V),[]
 
         #CEK 6b
         if K[-1].type == 'ARG12':
@@ -295,15 +297,16 @@ def step(C, E, K):
         #CEK 5b
         if K[-1].type == 'ARG22':
             #print('[cek5b]')
-            outstring_eval += '  [cek5b]\n'
             b = C_tok.value
             k = K.pop()
             o = k.value[0]
             b1 = k.value[1][0]
             e_prime = k.value[1][1]
-            #print(o, b1, b)
-            V = compute(o, b1, b)
-            return Token('num',V),[]
+            # to be sure that delta exists
+            if o in ['+','-','*','^'] and b1 is not 'lam' and b is not 'lam':     
+                V = compute(o, b1, b)
+                outstring_eval += '  [cek5b]\n'
+                return Token('num',V),[]
 
         # This is equivalent to returning "stuck"
         return None, None
