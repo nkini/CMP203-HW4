@@ -1,7 +1,7 @@
 ### TODO:
 
-1. Port to python2
-2. Case sensitivity - Change the type of the namedtuple to exactly match Tommy's. E.g., LPAREN to Lparen
+1. ~~Port to python2~~  (DONE)  
+2. ~~Case sensitivity - Change the type of the namedtuple to exactly match Tommy's. E.g., LPAREN to Lparen~~  (DONE)  
 3. Comment for all code
 4. Change to code to ensure that either everything in the control is a tuple or everything is a Token (may not be possible)
 5. Change the code in the evaluator's step function to reflect the following:  
